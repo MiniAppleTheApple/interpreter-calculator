@@ -9,6 +9,14 @@ def add_token(list, value, type)
   list.push(Token.new(value, type))
 end
 
+def left_right(root, type, number)
+  if operation_order(type) > operation_order(root.type)
+    [root.left, Operator.new(type, root.right, number)]
+  else
+    [Operator.new(type, root.right, number), root.left]
+  end
+end
+
 def parse(tokens)
   root = nil
   until tokens.empty?
@@ -22,12 +30,8 @@ def parse(tokens)
 
     type = tokens.shift.value
     number = Digit.new tokens.shift.value.to_i
-    if operation_order(type) > operation_order(root.type)
-      first, second = root.left, Operator.new(type, root.right, number)
-    elsif operation_order(type) < operation_order(root.type)
-      first, second = Operator.new(type, root.right, number), root.left 
-    end
-    root = Operator.new root.type, first, second
+    left, right = left_right(root, type, number)
+    root = Operator.new root.type, left, right 
   end
   root
 end
